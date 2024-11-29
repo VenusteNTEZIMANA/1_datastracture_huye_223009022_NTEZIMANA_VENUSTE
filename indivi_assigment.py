@@ -4,44 +4,76 @@ print('*' * 40)
 print('|', "Welcome To Vacation Planning System", '|')
 print('*' * 40)
 
-booking_trip = []  # List to hold confirmed bookings
-trip_queue = deque()  # Queue to hold pending trip requests
-destinations = ["Huye_kigali", "Huye_musanze", "huye_gicumbi", "huye_muhanga", "huye_rurindo", "huye_nyabihu"]
+booking_trip = []
+trip_queue = deque()
+destinations = {
+    "A": {"name": "Huye_muhanga", "slots": 30},
+    "B": {"name": "Huye_kigali", "slots": 30},
+    "C": {"name": "Huye_musanze", "slots": 30},
+    "D": {"name": "Huye_gicumbi", "slots": 30},
+    "E": {"name": "Huye_rurindo", "slots": 30},
+    "F": {"name": "Huye_nyabihu", "slots": 30}
+}
 
 
 def available_trip():
-    print("\nAvailable destinations:")
-    for trip in destinations:
-        print(trip)
+    print("\nAvailable destinations with slots:")
+    for key, destination in destinations.items():
+        print(f"{key}: {destination['name']} - {destination['slots']} slots available")
 
 
-def booking_trips(trip, name_family):
-    request = f"Request: {name_family} for {trip}"
-    booking_trip.append(request)
-    print(f"Request added: {request}")
+def booking_trips(letter, name_family):
+    if destinations[letter]["slots"] > 0:
+        trip_name = destinations[letter]["name"]
+        request = f"Booking: {name_family} for {trip_name}"
+        booking_trip.append(request)
+        destinations[letter]["slots"] -= 1
+        print(f"Booking request confirmed: {request}")
+    else:
+        print(f"Sorry, no available slots for {destinations[letter]['name']}.")
 
 
 def undo_last_booking():
     if booking_trip:
         last_booking = booking_trip.pop()
-        print(f"Undone: {last_booking}")
+
+        trip_name = last_booking.split(" for ")[1]
+
+
+        for letter, destination in destinations.items():
+            if destination["name"] == trip_name:
+                destinations[letter]["slots"] += 1
+
+                print(f"Undone: {last_booking}")
+                print(f"Slot for {trip_name} restored. New slots: {destinations[letter]['slots']}")
+                return
     else:
         print("No available bookings to undo.")
 
 
-def add_trip_request(name_family, trip):
-    trip_request = f"Trip: {name_family} for {trip}"
-    trip_queue.append(trip_request)
-    print(f"Trip request added: {name_family} for {trip}")
+def add_trip_request(name_family, letter):
+    if letter in destinations:
+        trip_name = destinations[letter]["name"]
+        trip_request = f"Request: {name_family} for {trip_name}"
+        trip_queue.append(trip_request)
+        print(f"Trip request added: {name_family} for {trip_name}")
+    else:
+        print(f"Sorry, invalid destination letter: {letter}.")
 
 
 def process_trip():
     if trip_queue:
-        next_request = trip_queue.popleft()  # Get the first request in the queue
-        print(f"Next to process: {next_request}")
-        # After processing, move the request to the booking list
-        booking_trip.append(next_request)
-        print(f"Trip booked successfully: {next_request}")
+        next_request = trip_queue.popleft()
+        trip_name = next_request.split(" for ")[1]
+        for letter, destination in destinations.items():
+            if destination["name"] == trip_name:
+                print(f"Processing request: {next_request}")
+
+                booking_trip.append(next_request)
+                destinations[letter]["slots"] -= 1
+                print(f"Trip booked successfully: {next_request}")
+                return
+        print(f"Invalid trip request for {trip_name}.")
     else:
         print("No processing requests available.")
 
@@ -87,21 +119,21 @@ def destination_trips():
         elif choice == 2:
             name = input("Enter your name: ")
             available_trip()
-            trip = input("Enter the trip you choose from available destinations: ")
-            if trip in destinations:
-                booking_trips(trip, name)
+            letter = input("Enter the destination letter (A, B, C, etc.): ").upper()
+            if letter in destinations:
+                booking_trips(letter, name)
             else:
-                print("Trip does not exist.")
+                print("Invalid destination letter.")
         elif choice == 3:
             undo_last_booking()
         elif choice == 4:
             name = input("Enter your name: ")
             available_trip()
-            trip = input("Enter the trip you want to request: ")
-            if trip in destinations:
-                add_trip_request(name, trip)
+            letter = input("Enter the destination letter (A, B, C, etc.): ").upper()
+            if letter in destinations:
+                add_trip_request(name, letter)
             else:
-                print("Trip does not exist.")
+                print("Invalid destination letter.")
         elif choice == 5:
             process_trip()
         elif choice == 6:
