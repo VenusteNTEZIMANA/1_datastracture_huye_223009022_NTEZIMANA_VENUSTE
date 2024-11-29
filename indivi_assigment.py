@@ -1,100 +1,118 @@
 from collections import deque
 
-# Stack for undoing trip bookings
-undo_stack = []
+print('*' * 40)
+print('|', "Welcome To Vacation Planning System", '|')
+print('*' * 40)
 
-# Queue for scheduling trips
-trip_queue = deque()
-
-# List to track destinations
-destinations = []
-
-# Function to book a trip
-def book_trip(destination):
-    destinations.append(destination)
-    undo_stack.append(('book', destination))
+booking_trip = []  # List to hold confirmed bookings
+trip_queue = deque()  # Queue to hold pending trip requests
+destinations = ["Huye_kigali", "Huye_musanze", "huye_gicumbi", "huye_muhanga", "huye_rurindo", "huye_nyabihu"]
 
 
-# Function to undo the last trip booking
-def undo_trip():
-              if undo_stack:
-                action, destination = undo_stack.pop()
-                if action == 'book':
-                 destinations.remove(destination)
-                print(f"Undo booking: Trip to {destination} has been removed.")
-              else:
-                print("No booking to undo.")
+def available_trip():
+    print("\nAvailable destinations:")
+    for trip in destinations:
+        print(trip)
 
 
-# Function to add a destination to the waiting queue
-def add_to_queue(destination):
-    trip_queue.append(destination)
-    print(f"{destination} added to the waiting list.")
+def booking_trips(trip, name_family):
+    request = f"Request: {name_family} for {trip}"
+    booking_trip.append(request)
+    print(f"Request added: {request}")
 
-# Function to schedule the next trip from the queue
-def schedule_next_trip():
-    if trip_queue:
-        destination = trip_queue.popleft()
-        book_trip(destination)
+
+def undo_last_booking():
+    if booking_trip:
+        last_booking = booking_trip.pop()
+        print(f"Undone: {last_booking}")
     else:
-        print("No destinations in the queue.")
+        print("No available bookings to undo.")
 
-# Function to display all booked trips
-def display_trips():
-    if destinations:
-        print("Booked trips:")
-        for destination in destinations:
-            print(f"- {destination}")
+
+def add_trip_request(name_family, trip):
+    trip_request = f"Trip: {name_family} for {trip}"
+    trip_queue.append(trip_request)
+    print(f"Trip request added: {name_family} for {trip}")
+
+
+def process_trip():
+    if trip_queue:
+        next_request = trip_queue.popleft()  # Get the first request in the queue
+        print(f"Next to process: {next_request}")
+        # After processing, move the request to the booking list
+        booking_trip.append(next_request)
+        print(f"Trip booked successfully: {next_request}")
+    else:
+        print("No processing requests available.")
+
+
+def trip_booked():
+    print("\nCurrent booked trips:")
+    if booking_trip:
+        for booking in booking_trip:
+            print(f"- {booking}")
     else:
         print("No trips booked yet.")
-def aaaa():
+
+
+def display_trip_request():
+    print("\nCurrent trip requests:")
+    if trip_queue:
+        for request in trip_queue:
+            print(request)
+    else:
+        print("No trip requests.")
+
+
+def destination_trips():
     while True:
-         print("\nMenu: ")
-         print(" 1. booked equeue")
-         print("2.Undo booking by stack")
-         print("3. Schedule trips ")
-         print("4. all booked trips")
-         choise=input("choose option:")
-         if choise=='1':
-             book_trip("kigali")
-             book_trip("musanze")
-             book_trip("rubavu")
-             book_trip("nyamata")
-             display_trips()
-            
-         elif choise=='2':
-           
-            book_trip("kigali")
-            book_trip("musanze")
-            book_trip("rubavu")
-            book_trip("nyamata")
-            undo_trip()
-            undo_trip()
-            display_trips()
-         elif choise=='3':
-             add_to_queue("huye")
-             add_to_queue("muhanga")
-             schedule_next_trip()
-             display_trips()
-             
-         elif choise=='4':
-            book_trip("kigali")
-            book_trip("musanze")
-            book_trip("rubavu")
-            book_trip("nyamata")
-            undo_trip()
-            undo_trip()
-            add_to_queue("huye")
-            add_to_queue("muhanga")
-            schedule_next_trip()
-            schedule_next_trip()
-            display_trips()
-        
-         else:
-          print("invailed choose")
-aaaa()
+        print("\nMenu: ")
+        print("1. Available destinations")
+        print("2. Booking trips")
+        print("3. Undo last booking")
+        print("4. Add trip request")
+        print("5. Process trip")
+        print("6. View booked trips")
+        print("7. Display trip requests")
+        print("8. Exit")
+
+        try:
+            choice = int(input("Enter your choice: "))
+        except ValueError:
+            print("Please enter a valid number.")
+            continue
+
+        if choice == 1:
+            available_trip()
+        elif choice == 2:
+            name = input("Enter your name: ")
+            available_trip()
+            trip = input("Enter the trip you choose from available destinations: ")
+            if trip in destinations:
+                booking_trips(trip, name)
+            else:
+                print("Trip does not exist.")
+        elif choice == 3:
+            undo_last_booking()
+        elif choice == 4:
+            name = input("Enter your name: ")
+            available_trip()
+            trip = input("Enter the trip you want to request: ")
+            if trip in destinations:
+                add_trip_request(name, trip)
+            else:
+                print("Trip does not exist.")
+        elif choice == 5:
+            process_trip()
+        elif choice == 6:
+            trip_booked()
+        elif choice == 7:
+            display_trip_request()
+        elif choice == 8:
+            print("Exiting the system. Have a great day!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 
-
-
-
+destination_trips()
